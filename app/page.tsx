@@ -32,7 +32,7 @@ export default async function Home() {
   return (
     <main className="shell">
       <section className="card">
-        <div className="banner">my-fw.com</div>
+        <div className="banner">v0.1</div>
         <h1 className="title">MyFreedomWall</h1>
         <p className="muted">
           THE space for students/alumni to discuss anything and everything university.
