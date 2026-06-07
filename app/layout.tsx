@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Campus Wall PH',
-  description: 'Anonymous freedom wall channels for Philippine universities',
+  title: 'MyFreedomWall',
+  description: 'THE space for students/alumni to discuss anything and everything university.',
 }
 
 export default function RootLayout({
