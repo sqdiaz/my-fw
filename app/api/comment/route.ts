@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { findThreadRootId, generateAnonHash, getClientIp, getPhilippinesDateKey } from '@/lib/forum'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(req: Request) {
   const formData = await req.formData()
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Parent post is required.' }, { status: 400 })
   }
 
-  const { data: parentPost, error: parentError } = await supabase
+  const { data: parentPost, error: parentError } = await supabaseAdmin
     .from('posts')
     .select('id, university_id')
     .eq('id', parentId)
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid parent post.' }, { status: 400 })
   }
 
-  const rootId = await findThreadRootId(parentPost.id)
+  const rootId = await findThreadRootId(parentPost.id, supabaseAdmin)
   if (!rootId) {
     return NextResponse.json({ error: 'Could not resolve thread root.' }, { status: 400 })
   }
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const dateKey = getPhilippinesDateKey()
   const authorHash = generateAnonHash(ip, dateKey, rootId)
 
-  const { error: insertError } = await supabase.from('posts').insert([
+  const { error: insertError } = await supabaseAdmin.from('posts').insert([
     {
       content: content.trim(),
       parent_id: parentPost.id,

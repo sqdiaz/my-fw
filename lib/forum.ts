@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 const HASH_SALT = process.env.HASH_SALT || 'default_salt'
@@ -23,7 +24,10 @@ export function generateAnonHash(ip: string, dateKey: string, threadRootId: stri
     .digest('hex')
 }
 
-export async function findThreadRootId(postId: string): Promise<string | null> {
+export async function findThreadRootId(
+  postId: string,
+  dbClient: SupabaseClient = supabase
+): Promise<string | null> {
   interface PostLink {
     id: string
     parent_id: string | null
@@ -33,7 +37,7 @@ export async function findThreadRootId(postId: string): Promise<string | null> {
   let safetyCounter = 0
 
   while (currentId && safetyCounter < 50) {
-    const { data, error } = await supabase
+    const { data, error } = await dbClient
       .from('posts')
       .select('id, parent_id')
       .eq('id', currentId)

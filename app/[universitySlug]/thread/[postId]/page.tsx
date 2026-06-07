@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { UniversityTabs } from '@/components/university-tabs'
 import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -132,6 +133,7 @@ export default async function ThreadPage({ params }: Props) {
         </div>
 
         <h1 className="title">{rootPost.title || '(untitled thread)'}</h1>
+        <UniversityTabs activeSlug={university.slug} />
         <p className="threadMeta">
           anon:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
         </p>

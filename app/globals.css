@@ -63,6 +63,34 @@ body {
   gap: 8px;
 }
 
+.tabs {
+  margin: 8px 12px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tabItem {
+  border: 1px solid #a3a3a3;
+  background: #ffffff;
+  padding: 4px 9px;
+  font-family: 'Courier New', monospace;
+  text-decoration: none;
+  color: #29478f;
+  font-size: 12px;
+}
+
+.tabItem:hover {
+  background: #f2f6ff;
+}
+
+.tabItemActive {
+  background: #dfe8ff;
+  border-color: #6e84b5;
+  color: #193778;
+  font-weight: 700;
+}
+
 .channelItem {
   display: flex;
   justify-content: space-between;

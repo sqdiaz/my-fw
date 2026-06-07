@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { UniversityTabs } from '@/components/university-tabs'
 import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -56,6 +57,7 @@ export default async function UniversityPage({ params }: Props) {
 
         <h1 className="title">{university.name}</h1>
         <p className="muted">Channel: /{university.slug}/</p>
+        <UniversityTabs activeSlug={university.slug} />
 
         <form action="/api/post" method="POST" className="formBox">
           <input type="hidden" name="university_slug" value={university.slug} />

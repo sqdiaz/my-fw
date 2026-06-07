@@ -20,13 +20,3 @@ create table if not exists public.posts (
 
 create index if not exists posts_university_created_idx on public.posts (university_id, created_at desc);
 create index if not exists posts_parent_idx on public.posts (parent_id);
-
-insert into public.universities (slug, name)
-values
-  ('dlsu', 'De La Salle University'),
-  ('upd', 'University of the Philippines Diliman'),
-  ('ust', 'University of Santo Tomas'),
-  ('admu', 'Ateneo de Manila University')
-on conflict (slug) do update
-set
-  name = excluded.name;

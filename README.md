@@ -1,10 +1,10 @@
-# MyFreedomWall
+# MyFreedomWall (my-fw.com)
 
-THE space for students/alumni to discuss anything and everything university.
+**THE space for students/alumni to discuss anything and everything university.**
 
-## Channels (for now)
+MyFreedomWall is an anonymous, channel-based freedom wall for Philippine universities.
 
-- `/dlsu/`
-- `/upd/`
-- `/ust/`
-- `/admu/`
+- University-specific communities with dynamic channels
+- Threaded discussions with nested replies
+- No signup required
+- Per-thread anonymous identities that rotate daily

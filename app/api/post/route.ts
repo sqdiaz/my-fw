@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { NextResponse } from 'next/server'
 import { generateAnonHash, getClientIp, getPhilippinesDateKey } from '@/lib/forum'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(req: Request) {
   const formData = await req.formData()
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'University channel is required.' }, { status: 400 })
   }
 
-  const { data: university, error: universityError } = await supabase
+  const { data: university, error: universityError } = await supabaseAdmin
     .from('universities')
     .select('id, slug')
     .eq('slug', universitySlug.trim())
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const authorHash = generateAnonHash(ip, dateKey, postId)
 
   const trimmedTitle = typeof title === 'string' ? title.trim() : ''
-  const { error: insertError } = await supabase.from('posts').insert([
+  const { error: insertError } = await supabaseAdmin.from('posts').insert([
     {
       id: postId,
       title: trimmedTitle.length > 0 ? trimmedTitle : null,

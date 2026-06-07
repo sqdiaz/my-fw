@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { UniversityTabs } from '@/components/university-tabs'
 import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,7 @@ export default async function Home() {
         <p className="muted">
           THE space for students/alumni to discuss anything and everything university.
         </p>
+        <UniversityTabs />
 
         <div className="channelList">
           {universityList.map((university) => (
