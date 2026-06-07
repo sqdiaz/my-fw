@@ -160,7 +160,7 @@ export default async function ThreadPage({ params }: Props) {
             return (
               <article key={comment.id} id={`comment-${code}`} className="commentCard">
                 <p className="threadMeta">
-                  No.{code} • anon:{comment.author_hash.slice(0, 10)} •{' '}
+                  #{code} • anon:{comment.author_hash.slice(0, 10)} •{' '}
                   {new Date(comment.created_at).toLocaleString('en-PH')}
                 </p>
                 {parentCode && (
