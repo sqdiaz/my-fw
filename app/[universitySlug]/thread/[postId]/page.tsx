@@ -90,11 +90,10 @@ function CommentNode({ comment, allComments, depth = 0 }: { comment: Post; allCo
 export default async function ThreadPage({ params }: Props) {
   const { universitySlug, postId } = params
 
-  const { data: university } = await supabase
-    .from('universities')
-    .select('id, slug, name')
-    .eq('slug', universitySlug)
-    .single()
+  const [{ data: university }, { data: allUniversities }] = await Promise.all([
+    supabase.from('universities').select('id, slug, name').eq('slug', universitySlug).single(),
+    supabase.from('universities').select('id, slug, name').order('name', { ascending: true }),
+  ])
 
   if (!university) notFound()
 
@@ -115,6 +114,7 @@ export default async function ThreadPage({ params }: Props) {
     .order('created_at', { ascending: true })
 
   const universityPosts: Post[] = allPosts ?? []
+  const universityTabs: University[] = allUniversities ?? []
   const threadComments = collectThreadPosts(rootPost.id, universityPosts)
   const rootComments = threadComments.filter((entry) => entry.parent_id === rootPost.id)
 
@@ -133,7 +133,7 @@ export default async function ThreadPage({ params }: Props) {
         </div>
 
         <h1 className="title">{rootPost.title || '(untitled thread)'}</h1>
-        <UniversityTabs activeSlug={university.slug} />
+        <UniversityTabs universities={universityTabs} activeSlug={university.slug} />
         <p className="threadMeta">
           anon:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
         </p>

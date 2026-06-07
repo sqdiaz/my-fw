@@ -28,11 +28,10 @@ interface ThreadPost {
 export default async function UniversityPage({ params }: Props) {
   const { universitySlug } = params
 
-  const { data: university } = await supabase
-    .from('universities')
-    .select('id, slug, name')
-    .eq('slug', universitySlug)
-    .single()
+  const [{ data: university }, { data: allUniversities }] = await Promise.all([
+    supabase.from('universities').select('id, slug, name').eq('slug', universitySlug).single(),
+    supabase.from('universities').select('id, slug, name').order('name', { ascending: true }),
+  ])
 
   if (!university) notFound()
 
@@ -44,6 +43,7 @@ export default async function UniversityPage({ params }: Props) {
     .order('created_at', { ascending: false })
 
   const threadList: ThreadPost[] = threads ?? []
+  const universityTabs: University[] = allUniversities ?? []
 
   return (
     <main className="shell">
@@ -57,7 +57,7 @@ export default async function UniversityPage({ params }: Props) {
 
         <h1 className="title">{university.name}</h1>
         <p className="muted">Channel: /{university.slug}/</p>
-        <UniversityTabs activeSlug={university.slug} />
+        <UniversityTabs universities={universityTabs} activeSlug={university.slug} />
 
         <form action="/api/post" method="POST" className="formBox">
           <input type="hidden" name="university_slug" value={university.slug} />

@@ -70,6 +70,12 @@ body {
   gap: 6px;
 }
 
+.tabsEmpty {
+  margin: 8px 12px 12px;
+  color: #666;
+  font-size: 12px;
+}
+
 .tabItem {
   border: 1px solid #a3a3a3;
   background: #ffffff;

@@ -1,27 +1,24 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 
 interface UniversityTabsProps {
+  universities: UniversityTab[]
   activeSlug?: string
 }
 
 interface UniversityTab {
   id: number
   slug: string
+  name?: string
 }
 
-export async function UniversityTabs({ activeSlug }: UniversityTabsProps) {
-  const { data } = await supabase
-    .from('universities')
-    .select('id, slug')
-    .order('name', { ascending: true })
-
-  const tabs: UniversityTab[] = data ?? []
-  if (tabs.length === 0) return null
+export function UniversityTabs({ universities, activeSlug }: UniversityTabsProps) {
+  if (universities.length === 0) {
+    return <p className="tabsEmpty">No channels available yet.</p>
+  }
 
   return (
     <nav className="tabs" aria-label="University channels">
-      {tabs.map((tab) => {
+      {universities.map((tab) => {
         const isActive = activeSlug === tab.slug
 
         return (

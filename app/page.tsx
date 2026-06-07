@@ -37,7 +37,7 @@ export default async function Home() {
         <p className="muted">
           THE space for students/alumni to discuss anything and everything university.
         </p>
-        <UniversityTabs />
+        <UniversityTabs universities={universityList} />
 
         <div className="channelList">
           {universityList.map((university) => (
