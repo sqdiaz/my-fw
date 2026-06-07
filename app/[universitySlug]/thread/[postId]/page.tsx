@@ -123,7 +123,7 @@ export default async function ThreadPage({ params }: Props) {
         <div className="threadLead">
           <h1 className="threadLeadTitle">{rootPost.title || '(untitled thread)'}</h1>
           <p className="threadMeta">
-            anon:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
+            user:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
           </p>
           {rootPost.content.trim().length > 0 ? (
             <p className="threadPreview">{renderReplyLinks(rootPost.content, validCodes)}</p>
@@ -160,7 +160,7 @@ export default async function ThreadPage({ params }: Props) {
             return (
               <article key={comment.id} id={`comment-${code}`} className="commentCard">
                 <p className="threadMeta">
-                  #{code} • anon:{comment.author_hash.slice(0, 10)} •{' '}
+                  #{code} • user:{comment.author_hash.slice(0, 10)} •{' '}
                   {new Date(comment.created_at).toLocaleString('en-PH')}
                 </p>
                 {parentCode && (
