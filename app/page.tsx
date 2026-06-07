@@ -21,7 +21,7 @@ export default async function Home() {
     return (
       <main className="shell">
         <div className="card">
-          <h1 className="title">Campus Wall PH</h1>
+          <h1 className="title">MyFreedomWall</h1>
           <p className="muted">Could not load universities: {error.message}</p>
         </div>
       </main>
@@ -31,10 +31,10 @@ export default async function Home() {
   return (
     <main className="shell">
       <section className="card">
-        <div className="banner">campuswall.ph</div>
-        <h1 className="title">Campus Wall PH</h1>
+        <div className="banner">my-fw.com</div>
+        <h1 className="title">MyFreedomWall</h1>
         <p className="muted">
-          Anonymous university channels. No logins, no profiles, just threads.
+          THE space for students/alumni to discuss anything and everything university.
         </p>
 
         <div className="channelList">
