@@ -7,9 +7,9 @@ const HASH_SALT = process.env.HASH_SALT || 'default_salt';
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const title = formData.get('title') as string | null;
     const content = formData.get('content') as string;
-    const university_slug = formData.get('university_slug') as string;
+    const parent_id = formData.get('parent_id') as string;
+    const university_slug = formData.get('university_slug') as string | null;
     
     // Simple IP-based hashing
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
@@ -19,24 +19,27 @@ export async function POST(req: Request) {
       .update(`${ip}-${dateYMD}-${HASH_SALT}`)
       .digest('hex');
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('posts')
       .insert([
         {
-          title,
           content,
-          university_slug,
+          parent_id,
+          university_slug, // Potentially null for deep replies
           author_hash,
-          upvotes: 0,
-          parent_id: null
+          upvotes: 0
         }
-      ])
-      .select()
-      .single();
+      ]);
 
     if (error) throw error;
 
-    return NextResponse.redirect(new URL(`/${university_slug}`, req.url), 303);
+    // Redirect back to the post page
+    const referer = req.headers.get('referer');
+    if (referer) {
+      return NextResponse.redirect(referer, 303);
+    }
+
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
