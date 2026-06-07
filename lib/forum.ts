@@ -24,6 +24,10 @@ export function generateAnonHash(ip: string, dateKey: string, threadRootId: stri
     .digest('hex')
 }
 
+export function getPostCode(postId: string): string {
+  return postId.replace(/-/g, '').slice(0, 8).toUpperCase()
+}
+
 export async function findThreadRootId(
   postId: string,
   dbClient: SupabaseClient = supabase

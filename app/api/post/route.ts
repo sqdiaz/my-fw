@@ -9,8 +9,19 @@ export async function POST(req: Request) {
   const content = formData.get('content')
   const universitySlug = formData.get('university_slug')
 
-  if (typeof content !== 'string' || content.trim().length < 2) {
-    return NextResponse.json({ error: 'Post content is required.' }, { status: 400 })
+  const trimmedTitle = typeof title === 'string' ? title.trim() : ''
+  const trimmedContent = typeof content === 'string' ? content.trim() : ''
+
+  if (trimmedTitle.length < 4) {
+    return NextResponse.json({ error: 'Thread title must be at least 4 characters.' }, { status: 400 })
+  }
+
+  if (trimmedTitle.length > 120) {
+    return NextResponse.json({ error: 'Thread title must be 120 characters or less.' }, { status: 400 })
+  }
+
+  if (trimmedContent.length > 4000) {
+    return NextResponse.json({ error: 'Thread body must be 4000 characters or less.' }, { status: 400 })
   }
 
   if (typeof universitySlug !== 'string' || !universitySlug.trim()) {
@@ -32,12 +43,11 @@ export async function POST(req: Request) {
   const dateKey = getPhilippinesDateKey()
   const authorHash = generateAnonHash(ip, dateKey, postId)
 
-  const trimmedTitle = typeof title === 'string' ? title.trim() : ''
   const { error: insertError } = await supabaseAdmin.from('posts').insert([
     {
       id: postId,
-      title: trimmedTitle.length > 0 ? trimmedTitle : null,
-      content: content.trim(),
+      title: trimmedTitle,
+      content: trimmedContent,
       university_id: university.id,
       parent_id: null,
       author_hash: authorHash,

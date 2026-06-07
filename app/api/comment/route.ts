@@ -11,6 +11,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Comment content is required.' }, { status: 400 })
   }
 
+  if (content.trim().length > 4000) {
+    return NextResponse.json({ error: 'Comment must be 4000 characters or less.' }, { status: 400 })
+  }
+
   if (typeof parentId !== 'string' || !parentId.trim()) {
     return NextResponse.json({ error: 'Parent post is required.' }, { status: 400 })
   }

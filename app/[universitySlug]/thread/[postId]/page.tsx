@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { UniversityTabs } from '@/components/university-tabs'
+import { getPostCode } from '@/lib/forum'
 import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -51,40 +52,21 @@ function collectThreadPosts(rootId: string, posts: Post[]): Post[] {
   return ordered
 }
 
-function CommentNode({ comment, allComments, depth = 0 }: { comment: Post; allComments: Post[]; depth?: number }) {
-  const children = allComments.filter((entry) => entry.parent_id === comment.id)
-  const marginStyle = depth > 0 ? { marginLeft: `${Math.min(depth, 8) * 16}px` } : undefined
+function renderReplyLinks(content: string, validCodes: Set<string>) {
+  const chunks = content.split(/(>>[a-zA-Z0-9]{8})/g)
+  return chunks.map((chunk, index) => {
+    const match = chunk.match(/^>>([a-zA-Z0-9]{8})$/)
+    if (!match) return chunk
 
-  return (
-    <article className="commentCard" style={marginStyle}>
-      <p className="threadMeta">
-        anon:{comment.author_hash.slice(0, 10)} • {new Date(comment.created_at).toLocaleString('en-PH')}
-      </p>
-      <p className="threadPreview">{comment.content}</p>
+    const code = match[1].toUpperCase()
+    if (!validCodes.has(code)) return `>>${code}`
 
-      <details>
-        <summary className="replyLink">reply</summary>
-        <form action="/api/comment" method="POST" className="replyForm">
-          <input type="hidden" name="parent_id" value={comment.id} />
-          <textarea
-            name="content"
-            required
-            minLength={2}
-            maxLength={4000}
-            placeholder="Write a reply..."
-            className="textarea"
-          />
-          <button type="submit" className="button">
-            post reply
-          </button>
-        </form>
-      </details>
-
-      {children.map((child) => (
-        <CommentNode key={child.id} comment={child} allComments={allComments} depth={depth + 1} />
-      ))}
-    </article>
-  )
+    return (
+      <Link key={`${code}-${index}`} href={`#comment-${code}`} className="replyPointer">
+        {`>>${code}`}
+      </Link>
+    )
+  })
 }
 
 export default async function ThreadPage({ params }: Props) {
@@ -115,8 +97,13 @@ export default async function ThreadPage({ params }: Props) {
 
   const universityPosts: Post[] = allPosts ?? []
   const universityTabs: University[] = allUniversities ?? []
-  const threadComments = collectThreadPosts(rootPost.id, universityPosts)
-  const rootComments = threadComments.filter((entry) => entry.parent_id === rootPost.id)
+  const threadComments = collectThreadPosts(rootPost.id, universityPosts).sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  )
+  const postCodeById = new Map<string, string>(
+    threadComments.map((comment) => [comment.id, getPostCode(comment.id)])
+  )
+  const validCodes = new Set(postCodeById.values())
 
   return (
     <main className="shell">
@@ -132,12 +119,19 @@ export default async function ThreadPage({ params }: Props) {
           / thread
         </div>
 
-        <h1 className="title">{rootPost.title || '(untitled thread)'}</h1>
+        <div className="threadLead">
+          <h1 className="threadLeadTitle">{rootPost.title || '(untitled thread)'}</h1>
+          <p className="threadMeta">
+            anon:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
+          </p>
+          {rootPost.content.trim().length > 0 ? (
+            <p className="threadPreview">{renderReplyLinks(rootPost.content, validCodes)}</p>
+          ) : (
+            <p className="threadEmpty">(no body)</p>
+          )}
+        </div>
+
         <UniversityTabs universities={universityTabs} activeSlug={university.slug} />
-        <p className="threadMeta">
-          anon:{rootPost.author_hash.slice(0, 10)} • {new Date(rootPost.created_at).toLocaleString('en-PH')}
-        </p>
-        <p className="threadPreview">{rootPost.content}</p>
 
         <form action="/api/comment" method="POST" className="formBox">
           <input type="hidden" name="parent_id" value={rootPost.id} />
@@ -155,10 +149,53 @@ export default async function ThreadPage({ params }: Props) {
         </form>
 
         <h2 className="sectionHeading">replies</h2>
-        {rootComments.length === 0 && <p className="muted">No comments yet.</p>}
-        {rootComments.map((comment) => (
-          <CommentNode key={comment.id} comment={comment} allComments={threadComments} />
-        ))}
+        {threadComments.length === 0 && <p className="muted">No comments yet.</p>}
+        <div className="threadList">
+          {threadComments.map((comment) => {
+            const code = postCodeById.get(comment.id) ?? getPostCode(comment.id)
+            const parentCode =
+              comment.parent_id && comment.parent_id !== rootPost.id
+                ? postCodeById.get(comment.parent_id) ?? null
+                : null
+
+            return (
+              <article key={comment.id} id={`comment-${code}`} className="commentCard">
+                <p className="threadMeta">
+                  No.{code} • anon:{comment.author_hash.slice(0, 10)} •{' '}
+                  {new Date(comment.created_at).toLocaleString('en-PH')}
+                </p>
+                {parentCode && (
+                  <p className="replyingTo">
+                    Replying to{' '}
+                    <Link href={`#comment-${parentCode}`} className="replyPointer">
+                      {`>>${parentCode}`}
+                    </Link>
+                  </p>
+                )}
+                <p className="threadPreview">{renderReplyLinks(comment.content, validCodes)}</p>
+
+                <details>
+                  <summary className="replyLink">{`reply >>${code}`}</summary>
+                  <form action="/api/comment" method="POST" className="replyForm">
+                    <input type="hidden" name="parent_id" value={comment.id} />
+                    <textarea
+                      name="content"
+                      required
+                      minLength={2}
+                      maxLength={4000}
+                      placeholder={`Reply to >>${code}`}
+                      defaultValue={`>>${code}\n`}
+                      className="textarea"
+                    />
+                    <button type="submit" className="button">
+                      post reply
+                    </button>
+                  </form>
+                </details>
+              </article>
+            )
+          })}
+        </div>
       </section>
     </main>
   )

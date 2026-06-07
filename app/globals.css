@@ -35,6 +35,15 @@ body {
   letter-spacing: 0.04em;
 }
 
+.banner a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.banner a:hover {
+  text-decoration: underline;
+}
+
 .title {
   margin: 14px 12px 8px;
   font-size: 28px;
@@ -188,8 +197,43 @@ body {
   white-space: pre-wrap;
 }
 
+.threadLead {
+  padding: 0 12px 12px;
+}
+
+.threadLeadTitle {
+  margin: 14px 0 8px;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.threadEmpty {
+  margin: 0;
+  font-size: 14px;
+  color: #767676;
+  font-style: italic;
+}
+
 .commentCard {
   margin-top: 8px;
+}
+
+.replyingTo {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #555;
+  font-family: 'Courier New', monospace;
+}
+
+.replyPointer {
+  color: #0f3ca2;
+  text-decoration: none;
+  font-family: 'Courier New', monospace;
+}
+
+.replyPointer:hover {
+  text-decoration: underline;
 }
 
 .replyForm {

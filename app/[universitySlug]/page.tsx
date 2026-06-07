@@ -64,16 +64,16 @@ export default async function UniversityPage({ params }: Props) {
           <input
             name="title"
             type="text"
+            required
+            minLength={4}
             maxLength={120}
-            placeholder="Thread title (optional)"
+            placeholder="Thread title"
             className="input"
           />
           <textarea
             name="content"
-            required
-            minLength={2}
             maxLength={4000}
-            placeholder="Start a thread..."
+            placeholder="Thread body (optional)"
             className="textarea"
           />
           <button type="submit" className="button">
@@ -95,7 +95,9 @@ export default async function UniversityPage({ params }: Props) {
                 anon:{thread.author_hash.slice(0, 10)} •{' '}
                 {new Date(thread.created_at).toLocaleString('en-PH')}
               </p>
-              <p className="threadPreview">{thread.content}</p>
+              <p className="threadPreview">
+                {thread.content.trim().length > 0 ? thread.content : '(no body)'}
+              </p>
             </article>
           ))}
         </div>
