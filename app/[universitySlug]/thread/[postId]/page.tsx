@@ -118,6 +118,7 @@ export default async function ThreadPage({ params }: Props) {
           </Link>{' '}
           / thread
         </div>
+        <UniversityTabs universities={universityTabs} activeSlug={university.slug} />
 
         <div className="threadLead">
           <h1 className="threadLeadTitle">{rootPost.title || '(untitled thread)'}</h1>
@@ -130,8 +131,6 @@ export default async function ThreadPage({ params }: Props) {
             <p className="threadEmpty">(no body)</p>
           )}
         </div>
-
-        <UniversityTabs universities={universityTabs} activeSlug={university.slug} />
 
         <form action="/api/comment" method="POST" className="formBox">
           <input type="hidden" name="parent_id" value={rootPost.id} />
@@ -168,14 +167,14 @@ export default async function ThreadPage({ params }: Props) {
                   <p className="replyingTo">
                     Replying to{' '}
                     <Link href={`#comment-${parentCode}`} className="replyPointer">
-                      {`>>${parentCode}`}
+                      {parentCode}
                     </Link>
                   </p>
                 )}
                 <p className="threadPreview">{renderReplyLinks(comment.content, validCodes)}</p>
 
                 <details>
-                  <summary className="replyLink">{`reply >>${code}`}</summary>
+                  <summary className="replyLink">reply</summary>
                   <form action="/api/comment" method="POST" className="replyForm">
                     <input type="hidden" name="parent_id" value={comment.id} />
                     <textarea
@@ -183,8 +182,7 @@ export default async function ThreadPage({ params }: Props) {
                       required
                       minLength={2}
                       maxLength={4000}
-                      placeholder={`Reply to >>${code}`}
-                      defaultValue={`>>${code}\n`}
+                      placeholder="Write a reply..."
                       className="textarea"
                     />
                     <button type="submit" className="button">
