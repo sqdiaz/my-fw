@@ -1,43 +1,53 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
-import crypto from 'crypto';
-
-const HASH_SALT = process.env.HASH_SALT || 'default_salt';
+import { randomUUID } from 'crypto'
+import { NextResponse } from 'next/server'
+import { generateAnonHash, getClientIp, getPhilippinesDateKey } from '@/lib/forum'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: Request) {
-  try {
-    const formData = await req.formData();
-    const title = formData.get('title') as string | null;
-    const content = formData.get('content') as string;
-    const university_slug = formData.get('university_slug') as string;
-    
-    // Simple IP-based hashing
-    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    const dateYMD = new Date().toISOString().split('T')[0];
-    const author_hash = crypto
-      .createHash('md5')
-      .update(`${ip}-${dateYMD}-${HASH_SALT}`)
-      .digest('hex');
+  const formData = await req.formData()
+  const title = formData.get('title')
+  const content = formData.get('content')
+  const universitySlug = formData.get('university_slug')
 
-    const { data, error } = await supabase
-      .from('posts')
-      .insert([
-        {
-          title,
-          content,
-          university_slug,
-          author_hash,
-          upvotes: 0,
-          parent_id: null
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return NextResponse.redirect(new URL(`/${university_slug}`, req.url), 303);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (typeof content !== 'string' || content.trim().length < 2) {
+    return NextResponse.json({ error: 'Post content is required.' }, { status: 400 })
   }
+
+  if (typeof universitySlug !== 'string' || !universitySlug.trim()) {
+    return NextResponse.json({ error: 'University channel is required.' }, { status: 400 })
+  }
+
+  const { data: university, error: universityError } = await supabase
+    .from('universities')
+    .select('id, slug')
+    .eq('slug', universitySlug.trim())
+    .single()
+
+  if (universityError || !university) {
+    return NextResponse.json({ error: 'Invalid university channel.' }, { status: 400 })
+  }
+
+  const postId = randomUUID()
+  const ip = getClientIp(req)
+  const dateKey = getPhilippinesDateKey()
+  const authorHash = generateAnonHash(ip, dateKey, postId)
+
+  const trimmedTitle = typeof title === 'string' ? title.trim() : ''
+  const { error: insertError } = await supabase.from('posts').insert([
+    {
+      id: postId,
+      title: trimmedTitle.length > 0 ? trimmedTitle : null,
+      content: content.trim(),
+      university_id: university.id,
+      parent_id: null,
+      author_hash: authorHash,
+      upvotes: 0,
+    },
+  ])
+
+  if (insertError) {
+    return NextResponse.json({ error: insertError.message }, { status: 500 })
+  }
+
+  return NextResponse.redirect(new URL(`/${university.slug}/thread/${postId}`, req.url), 303)
 }
